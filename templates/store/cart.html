@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart - MyStore{% endblock %}
+
+{% block content %}
+
+<h1 style="font-size: 1.85rem; font-weight: 800; margin-bottom: 1.75rem; color: var(--gray-800);">
+    Shopping Cart 🛒
+</h1>
+
+{% if cart|length > 0 %}
+    <div class="cart-layout">
+        <!-- Cart Items List -->
+        <div class="cart-table-card">
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th style="text-align: center;">Quantity</th>
+                        <th>Subtotal</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart %}
+                        <tr>
+                            <td>
+                                <div class="cart-product-cell">
+                                    {% if item.product.image %}
+                                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="cart-thumb">
+                                    {% else %}
+                                        <div class="cart-thumb" style="display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🛍️</div>
+                                    {% endif %}
+                                    <div>
+                                        <h4><a href="{% url 'product_detail' item.product.id %}">{{ item.product.name }}</a></h4>
+                                        <span style="font-size: 0.8rem; color: var(--gray-500);">Category: {{ item.product.category|default:'General' }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="font-weight: 600;">₹{{ item.price }}</td>
+                            <td>
+                                <div class="cart-qty-btn-group" style="justify-content: center;">
+                                    <a href="{% url 'cart_decrement' item.product.id %}" class="qty-btn" title="Decrease quantity">-</a>
+                                    <span style="min-width: 28px; text-align: center; font-weight: 700;">{{ item.quantity }}</span>
+                                    {% if item.quantity < item.product.stock %}
+                                        <a href="{% url 'cart_add' item.product.id %}" class="qty-btn" title="Increase quantity">+</a>
+                                    {% else %}
+                                        <span class="qty-btn" style="opacity: 0.4; cursor: not-allowed;" title="Max stock reached">+</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td style="font-weight: 700; color: var(--primary);">₹{{ item.total_price }}</td>
+                            <td style="text-align: right;">
+                                <a href="{% url 'cart_remove' item.product.id %}" 
+                                   class="btn btn-sm btn-secondary" 
+                                   style="color: var(--danger); border-color: #fecaca;"
+                                   title="Remove from cart">
+                                    ✕ Remove
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--gray-200);">
+                <a href="{% url 'home' %}" class="btn btn-secondary">
+                    &larr; Continue Shopping
+                </a>
+                <a href="{% url 'cart_clear' %}" class="btn btn-secondary btn-sm" style="color: var(--danger);" onclick="return confirm('Are you sure you want to clear your cart?');">
+                    Clear Entire Cart
+                </a>
+            </div>
+        </div>
+
+        <!-- Order Summary Card -->
+        <div class="order-summary-card">
+            <h3>Order Summary</h3>
+            <div class="summary-row">
+                <span>Total Items:</span>
+                <span style="font-weight: 600;">{{ cart|length }} item{{ cart|length|pluralize }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span style="font-weight: 600;">₹{{ cart.get_total_price }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Standard Shipping:</span>
+                <span style="color: var(--success); font-weight: 600;">FREE</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total Payable:</span>
+                <span style="color: var(--primary);">₹{{ cart.get_total_price }}</span>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+                <a href="{% url 'checkout' %}" class="btn btn-primary btn-block" style="padding: 0.85rem; font-size: 1rem;">
+                    Proceed to Checkout &rarr;
+                </a>
+            </div>
+
+            <div style="margin-top: 1.25rem; font-size: 0.8rem; color: var(--gray-500); text-align: center;">
+                🔒 Safe and secure payment processing.
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">🛒</div>
+        <h3>Your shopping cart is empty</h3>
+        <p>Looks like you haven't added any products to your cart yet.</p>
+        <a href="{% url 'home' %}" class="btn btn-primary">Start Shopping Now</a>
+    </div>
+{% endif %}
+
+{% endblock %}

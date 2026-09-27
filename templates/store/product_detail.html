@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - MyStore{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumbs -->
+<nav class="breadcrumb">
+    <a href="{% url 'home' %}">Home</a> &rsaquo;
+    {% if product.category %}
+        <a href="{% url 'home' %}?category={{ product.category }}">{{ product.category }}</a> &rsaquo;
+    {% endif %}
+    <span>{{ product.name }}</span>
+</nav>
+
+<!-- Main Product Details Layout -->
+<div class="detail-layout">
+    <!-- Product Image Box -->
+    <div class="detail-image-box">
+        {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        {% else %}
+            <div style="width: 100%; height: 380px; display: flex; align-items: center; justify-content: center; background: #e2e8f0; font-size: 5rem; color: #94a3b8;">
+                🛍️
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Product Information & Actions -->
+    <div class="detail-content">
+        {% if product.category %}
+            <span class="detail-category">{{ product.category }}</span>
+        {% endif %}
+
+        <h1 class="detail-title">{{ product.name }}</h1>
+
+        <div class="detail-price">
+            ₹{{ product.price }}
+        </div>
+
+        <p class="detail-desc">
+            {{ product.description|linebreaks }}
+        </p>
+
+        <div class="detail-stock-row">
+            <span>Availability:</span>
+            {% if product.stock > 0 %}
+                <span class="stock-tag in-stock">In Stock ({{ product.stock }} units available)</span>
+            {% else %}
+                <span class="stock-tag out-of-stock">Currently Out of Stock</span>
+            {% endif %}
+        </div>
+
+        {% if product.stock > 0 %}
+            <form action="{% url 'cart_add' product.id %}" method="POST" style="margin-top: 1rem;">
+                {% csrf_token %}
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+                    <label for="quantity" style="font-weight: 600; font-size: 0.95rem;">Quantity:</label>
+                    <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}" class="quantity-input">
+                </div>
+
+                <div class="detail-actions">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        🛒 Add to Shopping Cart
+                    </button>
+                    <a href="{% url 'home' %}" class="btn btn-secondary">
+                        &larr; Continue Shopping
+                    </a>
+                </div>
+            </form>
+        {% else %}
+            <div style="margin-top: 1.5rem;">
+                <p style="color: var(--danger); font-weight: 600; margin-bottom: 1rem;">This item is currently out of stock. Please check back later.</p>
+                <a href="{% url 'home' %}" class="btn btn-secondary">&larr; Back to Shop</a>
+            </div>
+        {% endif %}
+
+        <!-- Feature Perks -->
+        <div class="feature-perks">
+            <div class="perk-item">
+                <span class="perk-icon">🚚</span>
+                <strong>Fast Dispatch</strong>
+                <span>Ships within 24 hours</span>
+            </div>
+            <div class="perk-item">
+                <span class="perk-icon">🛡️</span>
+                <strong>Authentic</strong>
+                <span>100% Genuine Items</span>
+            </div>
+            <div class="perk-item">
+                <span class="perk-icon">🔄</span>
+                <strong>Easy Return</strong>
+                <span>7-Day Return Policy</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Related Products Section -->
+{% if related_products %}
+    <section style="margin-top: 3rem;">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.25rem; color: var(--gray-800);">
+            You May Also Like
+        </h2>
+        <div class="product-grid">
+            {% for item in related_products %}
+                <div class="product-card">
+                    <div class="card-img-wrapper">
+                        {% if item.image %}
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy">
+                        {% else %}
+                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #e2e8f0; font-size: 2rem;">🛍️</div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title"><a href="{% url 'product_detail' item.id %}">{{ item.name }}</a></h4>
+                        <div class="card-footer">
+                            <span class="card-price">₹{{ item.price }}</span>
+                            <a href="{% url 'product_detail' item.id %}" class="btn btn-secondary btn-sm">View</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
+
+{% endblock %}

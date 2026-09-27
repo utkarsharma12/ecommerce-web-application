@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Order History - MyStore{% endblock %}
+
+{% block content %}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--gray-800);">
+        My Order History 🧾
+    </h1>
+    <a href="{% url 'home' %}" class="btn btn-secondary btn-sm">
+        &larr; Back to Shop
+    </a>
+</div>
+
+{% if orders %}
+    <div style="overflow-x: auto;">
+        <table class="orders-table">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Date Placed</th>
+                    <th>Items</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td style="font-weight: 700;">#{{ order.id }}</td>
+                        <td style="color: var(--gray-600); font-size: 0.9rem;">
+                            {{ order.created_at|date:"M d, Y - h:i A" }}
+                        </td>
+                        <td>
+                            <div style="font-size: 0.85rem; color: var(--gray-700);">
+                                {% for item in order.items.all|slice:":2" %}
+                                    <div>• {{ item.product.name }} (x{{ item.quantity }})</div>
+                                {% endfor %}
+                                {% if order.items.count > 2 %}
+                                    <span style="color: var(--gray-500); font-size: 0.8rem;">+ {{ order.items.count|add:"-2" }} more item{{ order.items.count|add:"-2"|pluralize }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ order.status }}">{{ order.status }}</span>
+                        </td>
+                        <td style="font-weight: 700; color: var(--primary);">₹{{ order.total_amount }}</td>
+                        <td style="text-align: right;">
+                            <a href="{% url 'order_detail' order.id %}" class="btn btn-secondary btn-sm">
+                                View Details &rarr;
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📦</div>
+        <h3>No Orders Found</h3>
+        <p>You haven't placed any orders yet. Explore our products and order your first item!</p>
+        <a href="{% url 'home' %}" class="btn btn-primary">Start Shopping Now</a>
+    </div>
+{% endif %}
+
+{% endblock %}
