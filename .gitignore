@@ -13,6 +13,8 @@ ENV/
 
 # Static/Media collected
 /staticfiles/
+staticfiles/
+**/staticfiles/**
 
 # IDE / Editor
 .vscode/
