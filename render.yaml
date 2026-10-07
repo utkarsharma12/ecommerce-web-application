@@ -2,6 +2,7 @@ services:
   - type: web
     name: codealpha-ecommerce-store
     runtime: python
+    plan: free
     buildCommand: "./build.sh"
     startCommand: "gunicorn --chdir ecommerce ecommerce.wsgi:application"
     envVars:
